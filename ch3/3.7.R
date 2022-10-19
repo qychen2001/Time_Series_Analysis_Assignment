@@ -32,11 +32,11 @@ plot(
   y = winnebago,
   xlab = "Previous Year Wages",
   ylab = "Wages"
-)
+) # 绘制前一年和后一年的散点图
 win.graph(width = 12,
           height = 6,
           pointsize = 10)
-plot(winnebago, type = 'o', pch = 21)
+plot(winnebago, type = 'o', pch = 21) # 时间序列图
 # b
 x = time(winnebago)
 y = winnebago
@@ -84,4 +84,3 @@ win.graph(12, 6, pointsize = 10)
 plot(ts(e, start = start(winnebago), frequency = 12),
      type = 'o',
      pch = 21)
-
