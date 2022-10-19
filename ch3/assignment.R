@@ -25,14 +25,14 @@ quadratic_model = function(x, y) {
 }
 
 season_model_with_intercept = function(x, y) {
-  x = model.matrix( ~ x, x)
+  x = model.matrix(~ x, x)
   mu = solve(t(x) %*% x) %*% t(x) %*% y # 求参数
   y_hat = x %*% mu # 预测
   return(list(mu, y_hat))
 }
 
 season_model_without_intercept = function(x, y) {
-  x = model.matrix( ~ x - 1, x) # 转化为one-hot编码
+  x = model.matrix(~ x - 1, x) # 转化为one-hot编码
   mu = solve(t(x) %*% x) %*% t(x) %*% y # 求参数
   y_hat = x %*% mu # 预测
   return(list(mu, y_hat))
@@ -112,6 +112,5 @@ win.graph(12, 6, pointsize = 10)
 plot(ts(e, start = start(wages), frequency = 12),
      type = 'o',
      pch = 21)
-
 
 
