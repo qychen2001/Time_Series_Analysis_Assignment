@@ -1,0 +1,382 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+\usepackage{booktabs}
+
+%%%%%%% 字体
+\newcommand{\song}{\CJKfamily{song}}%? 宋体???(Windows自带simsun.ttf)?
+\newcommand{\fs}{\CJKfamily{fs}}%? 仿宋体?(Windows自带simfs.ttf)?
+\newcommand{\kai}{\CJKfamily{kai}}%? 楷体???(Windows 自带simkai.ttf)?
+\newcommand{\hei}{\CJKfamily{hei}}%? 黑体???(Windows 自带simhei.ttf)?
+\newcommand{\li}{\CJKfamily{li}}%? 隶书???(Windows自带simli.ttf)
+%%%%%%%%%%%%%% 常用字体
+\newcommand{\G}{\mathcal{G}}
+\newcommand{\HH}{\mathcal{H}}
+\newcommand{\cC}{\mathcal{C}}
+\newcommand{\C}{\mathbb{C}}
+\def\Arg{\textrm{Arg}}
+\def\Re{\textrm{Re}}
+\def\Im{\textrm{Im}}
+\def\R{\mathbb{R}}
+\def\Q{\mathbb{Q}}
+\def\Z{\mathbb{Z}}
+\def\ep{\epsilon}
+\def\pt{\partial}
+\def\supp{\textrm{supp\,}}
+\def\pf{\noindent{\bf Proof.}~}
+
+% 用来设置附录中代码的样式
+
+\lstset{
+    basicstyle          =   \scriptsize,          % 基本代码风格
+    keywordstyle        =   \color{blue},          % 关键字风格
+    commentstyle        =   \color[cmyk]{1,0,1,0},  % 注释的风格，斜体
+    stringstyle         =   \ttfamily,  % 字符串风格
+    flexiblecolumns,                % 别问为什么，加上这个
+    numbers             =   left,   % 行号的位置在左边
+    showspaces          =   false,  % 是否显示空格，显示了有点乱，所以不现实了
+    numberstyle         =   \zihao{-5}\ttfamily,    % 行号的样式，小五号，tt等宽字体
+    showstringspaces    =   false,
+    captionpos          =   t,      % 这段代码的名字所呈现的位置，t指的是top上面
+    frame               =   lrtb,   % 显示边框
+    escapeinside        =   ``,
+    breaklines          =   true,
+    extendedchars=false, %解决代码跨页时，章节标题，页眉等汉字不显示的问题
+    %xleftmargin=2em,xrightmargin=2em, aboveskip=1em, %设置边距
+    tabsize=2, %设置tab空格数\
+}
+
+%%%%%%%% 文档页面设置
+\textwidth=14.8cm \textheight=24cm
+\oddsidemargin=15pt
+\evensidemargin=15pt
+\topmargin=-.25in
+\parindent=22pt
+\renewcommand{\baselinestretch}{1.5}
+
+%%%%%%%% 标准尺寸, 不用管它
+\makeatletter
+\renewcommand\normalsize{%
+   \@setfontsize\normalsize\@xpt\@xiipt
+   \abovedisplayskip 1\p@ \@plus2\p@ \@minus5\p@
+   \abovedisplayshortskip \z@ \@plus3\p@
+   \belowdisplayshortskip 6\p@ \@plus3\p@ \@minus3\p@
+   \belowdisplayskip \abovedisplayskip
+   \let\@listi\@listI}
+\makeatother
+
+\allowdisplaybreaks[4]
+\title{时间序列分析作业与第四次实验报告}
+\author{姓名：康江睿 \\ 学号：2018213779\\ 指导老师： \ 张晓飞}
+\date{\today}
+
+\begin{document}
+\maketitle
+\zihao{-4}
+\section{AR(2)模型的自相关函数的计算程序与习题4.9}
+\subsection{函数AR2简介}
+函数AR2实现了对给定参数的AR(2)模型的自相关函数的计算与可视化。除此以外，函数提供了计算模型对应特征方程的根的选项。代码如下：
+\begin{lstlisting}[language=R]
+AR2 <- function(phi1, phi2, lag, plot = FALSE, root = FALSE){
+
+  library("ggplot2");
+
+  k <- lag;
+  rhos <- integer(k);
+  rhos[1] <- phi1/(1-phi2);rhos[2] <- phi1*rhos[1]+phi2;
+  for (i in 3:k){
+    rhos[i] <- phi1*rhos[i-1]+phi2*rhos[i-2];
+  }
+
+  if (plot == TRUE){
+    data <- data.frame(lags = 1:k, acfval = rhos);
+    p <- ggplot(data, aes(x = lags,y = acfval))+
+    geom_segment(aes(x = lags, xend = lags, y = 0, yend = acfval))+geom_point(size = 3, color = "red")+
+    theme(axis.text.x = element_text(angle = 45, hjust = 0.8, vjust = 0.9))+
+    scale_x_continuous("滞后数", breaks = seq(2,k,2))+theme(legend.position="none")+
+    scale_y_continuous("自相关函数值", breaks = seq(-1,1,0.2))
+  }else{
+    p <- NA;
+  }
+
+  if (root == TRUE){
+    Delta <- sqrt(complex(real = phi1^2+4*phi2));
+    if (Im(Delta) == 0){
+      roots <- c((phi1-Re(Delta))/(-2*phi2),(phi1+Re(Delta))/(-2*phi2));
+      results <- list(ACFval = rhos, Lag = k, ACFplot = p, Roots = roots);
+    }else{
+      roots <- c((phi1-Delta)/(-2*phi2),(phi1+Delta)/(-2*phi2));
+      R <- sqrt(-phi2);
+      Theta <- acos(phi1/2/R);
+      results <- list(ACFval = rhos, Lag = k, ACFplot = p, Roots = roots, Damping_Factor = R, Frequency = Theta);
+    }
+  }else{
+    results <- list(ACFval = rhos, Lag = k, ACFplot = p);
+  }
+  return(results)
+
+}
+\end{lstlisting}
+\subsection{函数AR2的使用说明}
+(1)对于AR(2)模型：
+
+$$Y_t={\phi_1}{Y_{t-1}}+{\phi_2}{Y_{t-2}}+e_t$$
+
+对应到函数AR2，则函数的输入参数phi1是模型中$\phi_1$的值，phi2是模型中$\phi_2$的值。
+
+(2)输入参数lag是自相关函数的最大滞后阶数；如：对于lag=k的情形，则函数计算1-k阶滞后的自相关函数值。
+
+(3)输入参数plot是选择是否绘制模型的1-k阶自相关函数图的参数；要求是布尔型变量。
+
+(4)输入参数root是选择是否计算模型对应特征方程的根的参数；要求是布尔型变量。如果根为复数，则函数还会计算模型自相关函数的阻尼因子和频率。
+
+(5)输出参数results为一个列表。具体内容如下：
+\newpage
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{@{\qquad}c@{\qquad\quad}c@{\qquad}}
+\toprule
+列表results包含的成分&含义\\\midrule
+ACFval&模型的自相关函数值\\
+Lag&自相关函数的最大滞后阶数\\
+ACFplot&模型的自相关函数图（如果plot=FALSE，则ACFplot=NA）\\
+Roots&模型对应特征方程的根（仅在root=TRUE时输出）\\
+Damping\_Factor&自相关函数的阻尼因子（仅在特征根为复数时输出）\\
+Frequency&自相关函数的频率（仅在特征根为复数时输出）\\\midrule
+\end{tabular}
+\caption{列表results包含的成分与对应的含义}
+\end{table}
+\subsection{使用函数AR2解决习题4.9}
+在本部分，所有最大滞后阶数Lag统一设置为30。首先将函数AR2载入工作环境。
+\begin{lstlisting}[language=R]
+> source('D:/R Files/TSAcourse/AR2.R', encoding = 'UTF-8')
+\end{lstlisting}
+
+\noindent(a)\quad 实现本题的代码如下：
+\begin{lstlisting}[language=R]
+> results=AR2(0.6,0.3,30,TRUE,TRUE)
+> results$ACFplot
+> results$Roots
+[1]  1.081666 -3.081666
+\end{lstlisting}
+
+可以发现，此时的特征根是实数。绘制的自相关函数图如下：
+\begin{figure}[!htbp]
+  \centering
+  % Requires \usepackage{graphicx}
+  \includegraphics[height=6cm,width=10cm]{Ch4_9_a.png}\\
+  \caption{习题4.9(a)的1-30阶滞后自相关函数图}
+\end{figure}
+
+\noindent(b)\quad 实现本题的代码如下：
+\begin{lstlisting}[language=R]
+> results=AR2(-0.4,0.5,30,TRUE,TRUE)
+> results$ACFplot
+> results$Roots
+[1]  1.869694 -1.069694
+\end{lstlisting}
+
+可以发现，此时的特征根是实数。绘制的自相关函数图如下：
+\begin{figure}[!htbp]
+  \centering
+  % Requires \usepackage{graphicx}
+  \includegraphics[height=6cm,width=10cm]{Ch4_9_b.png}\\
+  \caption{习题4.9(b)的1-30阶滞后自相关函数图}
+\end{figure}
+
+\noindent(c)\quad 实现本题的代码如下：
+\begin{lstlisting}[language=R]
+> results=AR2(1.2,-0.7,30,TRUE,TRUE)
+> results$ACFplot
+> results$Roots
+[1] 0.8571429-0.8329931i 0.8571429+0.8329931i
+\end{lstlisting}
+
+可以发现，此时的特征根是复数。
+\begin{lstlisting}[language=R]
+> results$Damping_Factor
+[1] 0.83666
+> results$Frequency
+[1] 0.7711105
+\end{lstlisting}
+
+如上所示，阻尼因子$R=0.8367$，频率$\Theta=0.7711$。
+
+绘制的自相关函数图如下：
+\newpage
+\begin{figure}[!htbp]
+  \centering
+  % Requires \usepackage{graphicx}
+  \includegraphics[height=6cm,width=10cm]{Ch4_9_c.png}\\
+  \caption{习题4.9(c)的1-30阶滞后自相关函数图}
+\end{figure}
+
+\noindent(d)\quad 实现本题的代码如下：
+\begin{lstlisting}[language=R]
+> results=AR2(-1,-0.6,30,TRUE,TRUE)
+> results$ACFplot
+> results$Roots
+[1] -0.8333333-0.9860133i -0.8333333+0.9860133i
+\end{lstlisting}
+
+可以发现，此时的特征根是复数。
+\begin{lstlisting}[language=R]
+> results$Damping_Factor
+[1] 0.7745967
+> results$Frequency
+[1] 2.27247
+\end{lstlisting}
+
+如上所示，阻尼因子$R=0.7746$，频率$\Theta=2.2725$。
+
+绘制的自相关函数图如下：
+\begin{figure}[!htbp]
+  \centering
+  % Requires \usepackage{graphicx}
+  \includegraphics[height=6cm,width=10cm]{Ch4_9_d.png}\\
+  \caption{习题4.9(d)的1-30阶滞后自相关函数图}
+\end{figure}
+\newpage
+
+\noindent(e)\quad 实现本题的代码如下：
+\begin{lstlisting}[language=R]
+> results=AR2(0.5,-0.9,30,TRUE,TRUE)
+> results$ACFplot
+> results$Roots
+[1] 0.277778-1.016834i 0.277778+1.016834i
+\end{lstlisting}
+
+可以发现，此时的特征根是复数。
+\begin{lstlisting}[language=R]
+> results$Damping_Factor
+[1] 0.9486833
+> results$Frequency
+[1] 1.304124
+\end{lstlisting}
+
+如上所示，阻尼因子$R=0.9487$，频率$\Theta=1.3041$。
+
+绘制的自相关函数图如下：
+\begin{figure}[!htbp]
+  \centering
+  % Requires \usepackage{graphicx}
+  \includegraphics[height=6cm,width=10cm]{Ch4_9_e.png}\\
+  \caption{习题4.9(e)的1-30阶滞后自相关函数图}
+\end{figure}
+
+\noindent(f)\quad 实现本题的代码如下：
+\begin{lstlisting}[language=R]
+> results=AR2(-0.5,-0.6,30,TRUE,TRUE)
+> results$ACFplot
+> results$Roots
+[1] -0.416667-1.221907i -0.416667+1.221907i
+\end{lstlisting}
+
+可以发现，此时的特征根是复数。
+\begin{lstlisting}[language=R]
+> results$Damping_Factor
+[1] 0.7745967
+> results$Frequency
+[1] 1.899428
+\end{lstlisting}
+
+如上所示，阻尼因子$R=0.7746$，频率$\Theta=1.8994$。
+
+绘制的自相关函数图如下：
+\newpage
+\begin{figure}[!htbp]
+  \centering
+  % Requires \usepackage{graphicx}
+  \includegraphics[height=6cm,width=10cm]{Ch4_9_f.png}\\
+  \caption{习题4.9(f)的1-30阶滞后自相关函数图}
+\end{figure}
+
+\section{ARMA(1,1)模型的自相关函数的计算程序与习题4.10}
+\subsection{函数ARMA11简介}
+函数ARMA11实现了对给定参数的ARMA(1,1)模型的自相关函数的计算与可视化。代码如下：
+\begin{lstlisting}[language=R]
+ARMA11 <- function(phi,theta,lag,plot = FALSE){
+  k <- lag;
+  x <- 0:(k-1);
+  rhos <- (1-theta*phi)*(phi-theta)*(phi^x)/(1-2*theta*phi+theta^2);
+
+  if (plot == TRUE){
+    data <- data.frame(lags = 1:k, acfval = rhos);
+    p <- ggplot(data, aes(x = lags,y = acfval))+
+    geom_segment(aes(x = lags, xend = lags, y = 0, yend = acfval))+geom_point(size = 3, color = "red")+
+    theme(axis.text.x = element_text(angle = 45, hjust = 0.8, vjust = 0.9))+
+    scale_x_continuous("滞后数", breaks = seq(2,k,2))+theme(legend.position="none")+
+    scale_y_continuous("自相关函数值", breaks = seq(-1,1,0.2))
+  }else{
+    p = NA;
+  }
+
+  results <- list(ACFval = rhos, Lag = k, ACFplot = p);
+  return(results);
+
+}
+\end{lstlisting}
+\subsection{函数ARMA11的使用说明}
+(1)对于ARMA(1,1)模型：
+
+$$Y_t={\phi_1}{Y_{t-1}}+e_t-{\theta}$$
+
+对应到函数AR2，则函数的输入参数phi是模型中$\phi$的值，theta是模型中$\theta$的值。
+
+(2)输入参数lag是自相关函数的最大滞后阶数；如：对于lag=k的情形，则函数计算1-k阶滞后的自相关函数值。
+
+(3)输入参数plot是选择是否绘制模型的1-k阶自相关函数图的参数；要求是布尔型变量。
+
+(4)输出参数results为一个列表。具体内容如下：
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{@{\qquad}c@{\qquad\quad}c@{\qquad}}
+\toprule
+列表results包含的成分&含义\\\midrule
+ACFval&模型的自相关函数值\\
+Lag&自相关函数的最大滞后阶数\\
+ACFplot&模型的自相关函数图（如果plot=FALSE，则ACFplot=NA）\\\midrule
+\end{tabular}
+\caption{列表results包含的成分与对应的含义}
+\end{table}
+\subsection{使用函数ARMA11解决习题4.10}
+在本部分，所有最大滞后阶数Lag统一设置为30。首先将函数ARMA11载入工作环境
+\begin{lstlisting}[language=R]
+> source('D:/R Files/TSAcourse/ARMA11.R', encoding = 'UTF-8')
+\end{lstlisting}
+
+\noindent(a)\quad 实现本题的代码如下：
+\begin{lstlisting}[language=R]
+> results=ARMA11(0.7,0.4,30,TRUE)
+> results$ACFplot
+\end{lstlisting}
+
+绘制的自相关函数图如下：
+\newpage
+\begin{figure}[!htbp]
+  \centering
+  % Requires \usepackage{graphicx}
+  \includegraphics[height=6cm,width=10cm]{Ch4_10_a.png}\\
+  \caption{习题4.10(a)的1-30阶滞后自相关函数图}
+\end{figure}
+
+\noindent(b)\quad 实现本题的代码如下：
+\begin{lstlisting}[language=R]
+> results=ARMA11(0.7,-0.4,30,TRUE)
+> results$ACFplot
+\end{lstlisting}
+
+绘制的自相关函数图如下：
+\begin{figure}[!htbp]
+  \centering
+  % Requires \usepackage{graphicx}
+  \includegraphics[height=6cm,width=10cm]{Ch4_10_b.png}\\
+  \caption{习题4.10(b)的1-30阶滞后自相关函数图}
+\end{figure}
+\end{document}

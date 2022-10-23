@@ -1,0 +1,233 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+\usepackage{booktabs}
+
+%%%%%%% 字体
+\newcommand{\song}{\CJKfamily{song}}%? 宋体???(Windows自带simsun.ttf)?
+\newcommand{\fs}{\CJKfamily{fs}}%? 仿宋体?(Windows自带simfs.ttf)?
+\newcommand{\kai}{\CJKfamily{kai}}%? 楷体???(Windows 自带simkai.ttf)?
+\newcommand{\hei}{\CJKfamily{hei}}%? 黑体???(Windows 自带simhei.ttf)?
+\newcommand{\li}{\CJKfamily{li}}%? 隶书???(Windows自带simli.ttf)
+%%%%%%%%%%%%%% 常用字体
+\newcommand{\G}{\mathcal{G}}
+\newcommand{\HH}{\mathcal{H}}
+\newcommand{\cC}{\mathcal{C}}
+\newcommand{\C}{\mathbb{C}}
+\def\Arg{\textrm{Arg}}
+\def\Re{\textrm{Re}}
+\def\Im{\textrm{Im}}
+\def\R{\mathbb{R}}
+\def\Q{\mathbb{Q}}
+\def\Z{\mathbb{Z}}
+\def\ep{\epsilon}
+\def\pt{\partial}
+\def\supp{\textrm{supp\,}}
+\def\pf{\noindent{\bf Proof.}~}
+
+% 用来设置附录中代码的样式
+
+\lstset{
+    basicstyle          =   \scriptsize,          % 基本代码风格
+    keywordstyle        =   \color{blue},          % 关键字风格
+    commentstyle        =   \color[cmyk]{1,0,1,0},  % 注释的风格，斜体
+    stringstyle         =   \ttfamily,  % 字符串风格
+    flexiblecolumns,                % 别问为什么，加上这个
+    numbers             =   left,   % 行号的位置在左边
+    showspaces          =   false,  % 是否显示空格，显示了有点乱，所以不现实了
+    numberstyle         =   \zihao{-5}\ttfamily,    % 行号的样式，小五号，tt等宽字体
+    showstringspaces    =   false,
+    captionpos          =   t,      % 这段代码的名字所呈现的位置，t指的是top上面
+    frame               =   lrtb,   % 显示边框
+    escapeinside        =   ``,
+    breaklines          =   true,
+    extendedchars=false, %解决代码跨页时，章节标题，页眉等汉字不显示的问题
+    %xleftmargin=2em,xrightmargin=2em, aboveskip=1em, %设置边距
+    tabsize=2, %设置tab空格数\
+}
+
+%%%%%%%% 文档页面设置
+\textwidth=14.8cm \textheight=24cm
+\oddsidemargin=15pt
+\evensidemargin=15pt
+\topmargin=-.25in
+\parindent=22pt
+\renewcommand{\baselinestretch}{1.5}
+
+%%%%%%%% 标准尺寸, 不用管它
+\makeatletter
+\renewcommand\normalsize{%
+   \@setfontsize\normalsize\@xpt\@xiipt
+   \abovedisplayskip 1\p@ \@plus2\p@ \@minus5\p@
+   \abovedisplayshortskip \z@ \@plus3\p@
+   \belowdisplayshortskip 6\p@ \@plus3\p@ \@minus3\p@
+   \belowdisplayskip \abovedisplayskip
+   \let\@listi\@listI}
+\makeatother
+
+\allowdisplaybreaks[4]
+\title{时间序列分析作业与第一次实验报告}
+\author{姓名：康江睿 \\ 学号：2018213779\\ 指导老师： \ 张晓飞}
+\date{\today}
+
+\begin{document}
+\maketitle
+\zihao{-4}
+\section{问题1.1的解决方案}
+\subsection{问题重述}
+从larain文件中调出数据，并绘制与图表1-2一样的时间序列图\\
+\subsection{问题分析}
+首先需要从larain文件中读取数据，接下来要设置与图表1-2一致的绘图参数，最后直接绘图即可\\
+\subsection{问题求解}
+使用R语言的实现如下：\\
+\begin{lstlisting}[language=R]
+library("TSA"); #`加载程辑包`
+data(larain); #`获取larain数据`
+windows(3,3,8); #`设置绘图参数`
+plot(y = larain,x = zlag(larain),ylab = 'Inches',xlab = 'Previous Year Inches') #`绘制图像`
+\end{lstlisting}
+
+绘制的图像如下：\\
+\begin{figure}[!htbp]
+  \centering
+  % Requires \usepackage{graphicx}
+  \includegraphics[height=8cm,width=8cm]{Ch1_1.png}\\
+  \caption{问题1.1图}
+\end{figure}
+
+\section{问题1.3的解决方案}
+\subsection{问题重述}
+模拟一个长度为48，完全随机的独立正态分布过程，并绘制时间序列图。进行多次模拟并检验其随机性。
+\subsection{问题分析}
+进行6次模拟；每次先生成48个服从标准正态分布的随机数，然后绘图，最后对数据进行Ljung-Box随机性检验（认为p 值小于0.05的数据不是完全随机的）
+\subsection{问题求解}
+使用R语言的实现如下：\\
+\begin{lstlisting}[language=R]
+lbtest_result=matrix(nrow = 6,ncol = 3); #`初始化随机性检验结果存储矩阵`
+windows(45,30); #`设置绘图参数`
+par(mfrow = c(2,3)); #`将Graph Device分屏为2×3的大小`
+for (i in 1:6) #`模拟6次`
+{
+  x <- ts(rnorm(48)); #`生成48个服从标准正态分布的随机数`
+  plot.ts(x,ylab = "Value",xlab = "Time",main = "独立（标准）正态分布过程模拟"); #`在当前屏幕绘制时间序列图`
+  points(x,pch = 21); #设置点型
+  y1 <- Box.test(x,lag = 6,type = "Ljung-Box"); #`对数据进行Ljung-Box随机性检验`
+  lbtest_result[i,]=c(y1[[1]],y1[[2]],y1[[3]]); #`存储随机性检验结果`
+}
+\end{lstlisting}
+
+绘制的图像如下：\\
+\begin{figure}[!htbp]
+  \centering
+  % Requires \usepackage{graphicx}
+  \includegraphics[height=10cm,width=14cm]{Ch1_3.png}\\
+  \caption{问题1.3图}
+\end{figure}
+\newpage
+随机性检验的结果如下表所示：\\
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{@{\qquad}c@{\qquad\quad}c@{\qquad\quad}c@{\qquad\quad}c@{\qquad}}
+\toprule
+实验序号&X-sqaured&df&p-value\\\midrule
+1&4.5067&6&0.6084\\
+2&7.8308&6&0.2507\\
+3&4.2615&6&0.6413\\
+4&4.7228&6&0.5798\\
+5&3.5018&6&0.7437\\
+6&9.2963&6&0.1575\\\midrule
+\end{tabular}
+\caption{随机性检验结果统计表（保留四位小数）}
+\end{table}
+
+由上表的p值列（全部大于0.05）可以推断出，独立（标准）正态分布过程满足随机性。\\
+
+\section{问题1.5的解决方案}
+\subsection{问题重述}
+模拟一个长度为48，完全随机的自由度为5的独立t分布过程，并绘制时间序列图。进行多次模拟并检验其随机性与正态性。
+\subsection{问题分析}
+进行6次模拟；每次先生成48个服从自由度为5的t分布的随机数，然后绘图，最后对数据进行Ljung-Box随机性检验（认为p 值小于0.05的数据不是完全随机的）与Shapiro-Wilk正态性检验（认为p 值小于0.05的数据不是正态的）
+\subsection{问题求解}
+使用R语言的实现如下：\\
+\begin{lstlisting}[language=R]
+swtest_result=matrix(nrow = 6,ncol = 2); #`初始化正态性检验结果存储矩阵`
+lbtest_result=matrix(nrow = 6,ncol = 3); #`初始化随机性检验结果存储矩阵`
+windows(45,30); #`设置绘图参数`
+par(mfrow = c(2,3)); #`将Graph Device分屏为2×3的大小`
+for (i in 1:6) #`模拟6次`
+{
+  x <- ts(rt(48,5)); #`生成48个服从自由度为5的t分布的随机数`
+  plot.ts(x,ylab = "Value",xlab = "Time",main = "独立t分布过程模拟"); #`在当前屏幕绘制时间序列图`
+  points(x,pch = 21); #`设置点型`
+  y1 <- shapiro.test(x); #`对数据进行Shapiro-Wilk正态性检验`
+  y2 <- Box.test(x,lag = 6,type = "Ljung-Box"); #`对数据进行Box-Pierce随机性检验`
+  swtest_result[i,]=c(y1[[1]],y1[[2]]); #`存储正态性检验结果`
+  lbtest_result[i,]=c(y2[[1]],y2[[2]],y2[[3]]); #`存储随机性检验结果`
+}
+\end{lstlisting}
+
+绘制的图像如下：\\
+\begin{figure}[!htbp]
+  \centering
+  % Requires \usepackage{graphicx}
+  \includegraphics[height=10cm,width=14cm]{Ch1_5.png}\\
+  \caption{问题1.5图}
+\end{figure}
+
+正态性检验的结果如下表所示：\\
+\newpage
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{@{\qquad\quad}c@{\qquad\quad}c@{\qquad\quad}c@{\qquad}}
+\toprule
+实验序号&W&p-value\\\midrule
+1&0.9629&0.1331\\
+2&0.9696&0.2450\\
+3&0.9648&0.1587\\
+4&0.9779&0.4947\\
+5&0.9550&0.0638\\
+6&0.9708&0.2725\\\midrule
+\end{tabular}
+\caption{正态性检验结果统计表（保留四位小数）}
+\end{table}
+
+由上表的p值列（全部大于0.05）可以推断出，独立t分布（自由度为5）过程满足正态性。
+
+随机性检验的结果如下表所示：\\
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{@{\qquad}c@{\qquad\quad}c@{\qquad\quad}c@{\qquad\quad}c@{\qquad}}
+\toprule
+实验序号&X-sqaured&df&p-value\\\midrule
+1&2.6308&6&0.8535\\
+2&10.0569&6&0.1222\\
+3&4.6929&6&0.5837\\
+4&3.0738&6&0.7995\\
+5&8.9323&6&0.1774\\
+6&9.6412&6&0.1405\\\midrule
+\end{tabular}
+\caption{随机性检验结果统计表（保留四位小数）}
+\end{table}
+
+由上表的p值列（全部大于0.05）可以推断出，独立t分布（自由度为5）过程满足随机性。\\
+
+\section{小结}
+\noindent(1)\qquad 绘制图像时可以通过设置线型、点型来个性化图像，可以通过添加标题、坐标轴标注来对图像进行一定解释。\\
+(2)\qquad 对于部分时间序列，检验结果显示随机性并不显著，这可能是由样本个数（48个）较少导致采样的不精确性产生。\\
+(3)\qquad 对于服从自由度为5的t分布的48个样本构成的时间序列，检验结果显示其具有正态性——这是与实际不符的。为了寻找原因，我们可以先尝试把不同自由度的t分布与标准正态分布的图像一起进行对比：\\
+\begin{figure}[!htbp]
+  \centering
+  % Requires \usepackage{graphicx}
+  \includegraphics[height=8cm,width=9cm]{t_vs_n.jpg}\\
+  \caption{不同自由度的t分布与标准正态分布的图像（来自百度）}
+\end{figure}
+
+观察发现，它们的形状是非常相似的：都是单峰、对称；单调性则完全一致。此外，自由度越高的t分布越接近正态分布。由此，我猜测这可能也是因为样本个数较少导致的。如果增加服从自由度为5的t分布的取样数，便可以减少抽样误差，可能可以使得Shapiro-Wilk检验的结果更为准确。
+
+\end{document}

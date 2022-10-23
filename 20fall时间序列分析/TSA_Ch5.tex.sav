@@ -1,0 +1,351 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+\usepackage{booktabs}
+\usepackage{bm}
+
+%%%%%%% 字体
+\newcommand{\song}{\CJKfamily{song}}%? 宋体???(Windows自带simsun.ttf)?
+\newcommand{\fs}{\CJKfamily{fs}}%? 仿宋体?(Windows自带simfs.ttf)?
+\newcommand{\kai}{\CJKfamily{kai}}%? 楷体???(Windows 自带simkai.ttf)?
+\newcommand{\hei}{\CJKfamily{hei}}%? 黑体???(Windows 自带simhei.ttf)?
+\newcommand{\li}{\CJKfamily{li}}%? 隶书???(Windows自带simli.ttf)
+%%%%%%%%%%%%%% 常用字体
+\newcommand{\G}{\mathcal{G}}
+\newcommand{\HH}{\mathcal{H}}
+\newcommand{\cC}{\mathcal{C}}
+\newcommand{\C}{\mathbb{C}}
+\def\Arg{\textrm{Arg}}
+\def\Re{\textrm{Re}}
+\def\Im{\textrm{Im}}
+\def\R{\mathbb{R}}
+\def\Q{\mathbb{Q}}
+\def\Z{\mathbb{Z}}
+\def\ep{\epsilon}
+\def\pt{\partial}
+\def\supp{\textrm{supp\,}}
+\def\pf{\noindent{\bf Proof.}~}
+
+% 用来设置附录中代码的样式
+
+\lstset{
+    basicstyle          =   \scriptsize,          % 基本代码风格
+    keywordstyle        =   \color{blue},          % 关键字风格
+    commentstyle        =   \color[cmyk]{1,0,1,0},  % 注释的风格，斜体
+    stringstyle         =   \ttfamily,  % 字符串风格
+    flexiblecolumns,                % 别问为什么，加上这个
+    numbers             =   left,   % 行号的位置在左边
+    showspaces          =   false,  % 是否显示空格，显示了有点乱，所以不现实了
+    numberstyle         =   \zihao{-5}\ttfamily,    % 行号的样式，小五号，tt等宽字体
+    showstringspaces    =   false,
+    captionpos          =   t,      % 这段代码的名字所呈现的位置，t指的是top上面
+    frame               =   lrtb,   % 显示边框
+    escapeinside        =   ``,
+    breaklines          =   true,
+    extendedchars=false, %解决代码跨页时，章节标题，页眉等汉字不显示的问题
+    %xleftmargin=2em,xrightmargin=2em, aboveskip=1em, %设置边距
+    tabsize=2, %设置tab空格数\
+}
+
+%%%%%%%% 文档页面设置
+\textwidth=14.8cm \textheight=24cm
+\oddsidemargin=15pt
+\evensidemargin=15pt
+\topmargin=-.25in
+\parindent=22pt
+\renewcommand{\baselinestretch}{1.5}
+
+%%%%%%%% 标准尺寸, 不用管它
+\makeatletter
+\renewcommand\normalsize{%
+   \@setfontsize\normalsize\@xpt\@xiipt
+   \abovedisplayskip 1\p@ \@plus2\p@ \@minus5\p@
+   \abovedisplayshortskip \z@ \@plus3\p@
+   \belowdisplayshortskip 6\p@ \@plus3\p@ \@minus3\p@
+   \belowdisplayskip \abovedisplayskip
+   \let\@listi\@listI}
+\makeatother
+
+\allowdisplaybreaks[4]
+\title{时间序列分析作业与第五次实验报告}
+\author{姓名：康江睿 \\ 学号：2018213779\\ 指导老师： \ 张晓飞}
+\date{\today}
+
+\begin{document}
+\maketitle
+\zihao{-4}
+\section{模拟并可视化ARIMA序列与习题5.10}
+\subsection{函数simARIMA简介}
+函数simARIMA实现了对给定参数的ARIMA(p,d,q)模型的仿真模拟。代码如下：
+\begin{lstlisting}[language=R]
+simARIMA <- function(AR.para = integer(0), MA.para = integer(0), diff, noise.sd = 1, ARMA.mean = 0, seq.length = 10){
+
+  l = seq.length+1;
+  d = diff;
+  if ((length(AR.para)>0)&(length(MA.para)>0)){
+    m = length(MA.para);n = length(AR.para);mode = 1;
+  }else if ((length(AR.para)>0)&(length(MA.para)==0)){
+    n = length(AR.para);mode = 2;
+  }else if ((length(AR.para)==0)&(length(MA.para)>0)){
+    m = length(MA.para);mode = 3;
+  }else if ((length(AR.para)==0)&(length(MA.para)==0)){
+    mode = 4;
+  }
+
+  if (mode==1){
+    e = rnorm(n = l+m-1, mean = 0,sd = noise.sd);
+    X = matrix(0, nrow = l-1, ncol = m);
+    for (i in 1:m){
+      X[,i] = e[(m-i+1):(l+m-i-1)]
+    }
+    W.MA = e[(m+1):(l+m-1)]-X%*%MA.para
+
+    W.AR = c(rnorm(n = n, mean = 0,sd = noise.sd), vector("numeric",length = l-1))
+    p = 0;
+    while (p<(l-1)){
+      W.AR[n+1+p] = crossprod(W.AR[(1+p):(n+p)],AR.para)
+      p = p+1
+    }
+
+    W = W.MA+W.AR[(n+1):(n+l-1)]
+
+  }else if (mode==2){
+    e = rnorm(n = l-1, mean = 0,sd = noise.sd);
+
+    W.AR = c(rnorm(n = n, mean = 0,sd = noise.sd), vector("numeric",length = l-1))
+    p = 0;
+    while (p<(l-1)){
+      W.AR[n+1+p] = crossprod(W.AR[(1+p):(n+p)],AR.para)
+      p = p+1
+    }
+
+    W = W.AR[(n+1):(n+l-1)]+e
+
+  }else if (mode==3){
+    e = rnorm(n = l+m-1, mean = 0,sd = noise.sd);
+    X = matrix(0, nrow = l-1, ncol = m);
+    for (i in 1:m){
+      X[,i] = e[(m-i+1):(l+m-i-1)]
+    }
+    W = e[(m+1):(l+m-1)]-X%*%MA.para
+  }else if (mode==4){
+    W = e[1:l-1]
+  }
+  W = W+ARMA.mean
+
+  if (d>0){
+    while (d>0){
+    dY = cumsum(W);
+    d = d-1;
+  }
+  Y = c(0,dY)
+  }else{
+    Y = W
+  }
+
+
+  return(Y)
+
+}
+\end{lstlisting}
+\subsection{函数plot.simARIMA简介}
+函数plot.simARIMA实现了对给定参数的ARIMA(p,d,q)模型仿真模拟结果的可视化。代码如下：
+\begin{lstlisting}
+plot.simARIMA <- function(AR.para = integer(0), MA.para=integer(0),
+                          diff, noise.sd = 1, ARMA.mean = 0, seq.length = 10, batch = 9){
+
+  library(ggplot2)
+  library(reshape2)
+
+  data = matrix(NA, nrow = seq.length+1, ncol = batch+1)
+  if ((length(AR.para)>0)&(length(MA.para)>0)){
+    para = AR.para; para.char = "AR ["; m = length(para)
+    for (i in 1:m){
+      if (i == m){
+        para.char = paste(para.char, para[i])
+      }else{
+        para.char = paste(para.char, para[i],",")
+      }
+    }
+    para.char = paste(para.char, "], ")
+    para = MA.para; para.char = paste(para.char, "MA ["); m = length(para)
+    for (i in 1:m){
+      if (i == m){
+        para.char = paste(para.char, para[i])
+      }else{
+        para.char = paste(para.char, para[i],",")
+      }
+    }
+    para.char = paste(para.char, "]")
+  }else if ((length(AR.para)>0)&(length(MA.para)==0)){
+    para = AR.para; para.char = "AR ["; m = length(para)
+    for (i in 1:m){
+      if (i == m){
+        para.char = paste(para.char, para[i])
+      }else{
+        para.char = paste(para.char, para[i],",")
+      }
+    }
+    para.char = paste(para.char, "]")
+  }else if ((length(AR.para)==0)&(length(MA.para)>0)){
+    para = MA.para; para.char = "MA ["; m = length(para)
+    for (i in 1:m){
+      if (i == m){
+        para.char = paste(para.char, para[i])
+      }else{
+        para.char = paste(para.char, para[i],",")
+      }
+    }
+    para.char = paste(para.char, "]")
+  }else if ((length(AR.para)==0)&(length(MA.para)==0)){
+    para = "No parameters";
+  }
+
+  for (i in 1:batch){
+    data[,i] = simARIMA(AR.para, MA.para, diff, noise.sd, ARMA.mean, seq.length)
+  }
+  data[,batch+1] = 0:(seq.length);
+  name = c("serie1","serie2","serie3","serie4",
+           "serie5","serie6","serie7","serie8",
+           "serie9","x");
+  data = as.data.frame(data);names(data) = name[c(1:batch,10)];
+  data.melt=melt(data,id.vars = c("x"),variable.name = c("V"),value.name = c("y"));
+
+  max.data = ceiling(max(data.melt[,3]));min.data = floor(min(data.melt[,3]));
+  max.abs.data = max(abs(min.data),max.data)
+  if (max.data-min.data>80){
+    sz = 8;by.x = 5
+  }else if(max.data-min.data>60){
+    sz = 10;by.x = 2
+  }else{
+    sz = 12;by.x = 2
+  }
+  if (seq.length>100){
+    by.y = 10
+  }else{
+    by.y = 5
+  }
+
+  p_line = ggplot(data.melt)+
+    geom_line(aes(x=data.melt[,1],y=data.melt[,3],color=data.melt[,2]),size=1)+
+    scale_color_brewer(palette = "Set1")+
+    scale_x_continuous(breaks = seq(0, seq.length, by.y))+
+    scale_y_continuous(breaks = seq(-max.abs.data, max.abs.data, by.x))+
+    labs(x="Time",y="Value",color="Group")+
+    ggtitle(paste("Parameter(s) : ",para.char))+
+    theme(
+      legend.title = element_text(size = 15, face = "bold"),
+      legend.text = element_text(size = 15, face = "bold"),
+      legend.position = "right",
+      legend.key.size=unit(0.6,'cm'),
+      axis.ticks.x=element_blank(),
+      axis.text.x=element_text(size = 12,face = "bold", vjust = 0.5, hjust = 0.5),
+      axis.text.y=element_text(size = sz,face = "bold", vjust = 0.5, hjust = 0.5),
+      axis.title.x = element_text(size = 15,face = "bold", vjust = -0.5, hjust = 0.5),
+      axis.title.y = element_text(size = 15,face = "bold", vjust = 1.2, hjust = 0.5),
+      panel.background = element_rect(fill = "transparent",colour = "black"),
+      panel.grid.minor = element_line(color="lightgrey",size=0.1),
+      panel.grid.major = element_line(color="lightgrey",size=0.1),
+      plot.background = element_rect(fill = "transparent",colour = "white"),
+      plot.title = element_text(size = 18,face = "bold", vjust = 0.5, hjust = 0.5));
+
+  return(p_line);
+
+}
+\end{lstlisting}
+\subsection{函数使用说明}
+对于ARMA(p,q)过程，记模型为
+$$W_t={\phi_1}W_{t-1}+{\phi_2}W_{t-2}+\cdots+{\phi_p}W_{t-p}+e_t-{\theta_1}e_{t-1}-{\theta_2}e_{t-2}-\cdots-{\theta_q}e_{t-q}$$
+
+对应的ARIMA(p,d,q)过程记为
+$$\Delta^dY=W_t$$
+
+记$\bm{\phi}=[\phi_1,\phi_2,\cdots,\phi_p]$，$\bm{\theta}=[\theta_1,\theta_2,\cdots,\theta_q]$
+
+\noindent(1)两个函数的输入参数几乎一样（只有batch是plot.simARIMA一个函数的输入参数），其名称与含义如下表：
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{@{\qquad}c@{\qquad\quad}c@{\qquad}}
+\toprule
+输入参数名称&含义\\\midrule
+AR.para&以上定义的$1\times p$向量$\bm{\phi}$\\
+MA.para&以上定义的$1\times q$向量$\bm{\theta}$\\
+diff&ARIMA(p,d,q)过程中的差分数d\\
+noise.sd&噪声的标准差，默认为1\\
+ARMA.mean&对应的ARMA模型的均值，默认为0\\
+seq.length&模拟序列的长度\\
+batch&可视化函数中模拟序列的条数\\\midrule
+\end{tabular}
+\caption{输入参数的名称与含义}
+\end{table}
+
+\noindent(2)simARIMA函数的输出参数是一条长度为$(1+seq.length)$的向量$Y$，其中$Y[1]=0$；plot.simARIMA函数的输出参数是一张图片。
+
+\noindent(3)batch最低为1，最高为9；如果需要模拟更多条序列，请在绘图命令中将scale\_color\_brewer定义的颜色集进行更改。
+
+\noindent(4)注意：使用plot.simARIMA函数前请下载ggplot2包和reshape2包。
+\subsection{应用函数解决习题5.10}
+对于IMA(1,1)序列，设置模型参数集为$\{-1,-0.3,0.3,1\}$；设置模拟条数为9，序列长度为100，模拟结果如下：
+\begin{figure}[!htbp]
+\begin{minipage}[t]{0.45\linewidth}
+\centering
+\includegraphics[height=5cm,width=6.5cm]{Ch5_1.png}
+\caption{\zihao{5}参数为[-1]的IMA(1,1)序列模拟结果图}
+\end{minipage}
+\begin{minipage}[t]{0.45\linewidth}
+\centering
+\includegraphics[height=5cm,width=6.5cm]{Ch5_2.png}
+\caption{\zihao{5}参数为[-0.3]的IMA(1,1)序列模拟结果图}
+\end{minipage}
+\end{figure}
+\begin{figure}[!htbp]
+\begin{minipage}[t]{0.45\linewidth}
+\centering
+\includegraphics[height=5cm,width=6.5cm]{Ch5_3.png}
+\caption{\zihao{5}参数为[0.3]的IMA(1,1)序列模拟结果图}
+\end{minipage}
+\begin{minipage}[t]{0.45\linewidth}
+\centering
+\includegraphics[height=5cm,width=6.5cm]{Ch5_4.png}
+\caption{\zihao{5}参数为[1]的IMA(1,1)序列模拟结果图}
+\end{minipage}
+\end{figure}
+
+对于IMA(1,1)序列，设置模型参数集为P45的特例与习题4.2中的参数，共四组；设置模拟条数为9，序列长度为100，模拟结果如下：
+\newpage
+\begin{figure}[!htbp]
+\begin{minipage}[t]{0.45\linewidth}
+\centering
+\includegraphics[height=5cm,width=6.5cm]{Ch5_5.png}
+\caption{\zihao{5}参数为[1,-0.6]的IMA(2,2)序列模拟结果图}
+\end{minipage}
+\begin{minipage}[t]{0.45\linewidth}
+\centering
+\includegraphics[height=5cm,width=6.5cm]{Ch5_6.png}
+\caption{\zihao{5}参数为[0.5,0.4]的IMA(2,2)序列模拟结果图}
+\end{minipage}
+\end{figure}
+\begin{figure}[!htbp]
+\begin{minipage}[t]{0.45\linewidth}
+\centering
+\includegraphics[height=5cm,width=6.5cm]{Ch5_7.png}
+\caption{\zihao{5}参数为[1.2,-0.7]的IMA(2,2)序列模拟结果图}
+\end{minipage}
+\begin{minipage}[t]{0.45\linewidth}
+\centering
+\includegraphics[height=5cm,width=6.5cm]{Ch5_8.png}
+\caption{\zihao{5}参数为[-1,-0.6]的IMA(2,2)序列模拟结果图}
+\end{minipage}
+\end{figure}
+\section{其他习题(5.11，5.12，5.13)}
+\subsection{习题5.11}
+
+\subsection{习题5.12}
+\subsection{习题5.13}
+\end{document}

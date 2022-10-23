@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1607697845848.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "75507817",
+    "id" : "E2DB5AAB",
+    "lastKnownWriteTime" : 1607778368,
+    "last_content_update" : 1607778368797,
+    "path" : "D:/R Files/TSAcourse/mlear1.R",
+    "project_path" : "mlear1.R",
+    "properties" : {
+        "cursorPosition" : "16,23",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

@@ -22,7 +22,7 @@ quadratic_model = function(x, y) {
   x_quad = x ^ 2
   x = cbind(ones, x, x_quad)
   #print(dim(x))
-  mu = inv(t(x) %*% x) %*% t(x) %*% y # 求参数
+  mu = qr.solve(x, y) # 求参数
   y_hat = x %*% mu # 预测
   return(list(mu, y_hat))
 }
@@ -75,5 +75,3 @@ season_model_with_intercept(x, y) # 验证有截距情况
 season_model_without_intercept(x, y) # 验证没有截距情况
 # x=harmonic(tempdub,1) # 书本做法
 cosine_model(x, y) # 验证余弦的情况
-
-

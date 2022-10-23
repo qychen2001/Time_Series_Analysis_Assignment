@@ -1,0 +1,552 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+\usepackage{booktabs}
+
+%%%%%%% 字体
+\newcommand{\song}{\CJKfamily{song}}%? 宋体???(Windows自带simsun.ttf)?
+\newcommand{\fs}{\CJKfamily{fs}}%? 仿宋体?(Windows自带simfs.ttf)?
+\newcommand{\kai}{\CJKfamily{kai}}%? 楷体???(Windows 自带simkai.ttf)?
+\newcommand{\hei}{\CJKfamily{hei}}%? 黑体???(Windows 自带simhei.ttf)?
+\newcommand{\li}{\CJKfamily{li}}%? 隶书???(Windows自带simli.ttf)
+%%%%%%%%%%%%%% 常用字体
+\newcommand{\G}{\mathcal{G}}
+\newcommand{\HH}{\mathcal{H}}
+\newcommand{\cC}{\mathcal{C}}
+\newcommand{\C}{\mathbb{C}}
+\def\Arg{\textrm{Arg}}
+\def\Re{\textrm{Re}}
+\def\Im{\textrm{Im}}
+\def\R{\mathbb{R}}
+\def\Q{\mathbb{Q}}
+\def\Z{\mathbb{Z}}
+\def\ep{\epsilon}
+\def\pt{\partial}
+\def\supp{\textrm{supp\,}}
+\def\pf{\noindent{\bf Proof.}~}
+
+% 用来设置附录中代码的样式
+
+\lstset{
+    basicstyle          =   \scriptsize,          % 基本代码风格
+    keywordstyle        =   \color{blue},          % 关键字风格
+    commentstyle        =   \color[cmyk]{1,0,1,0},  % 注释的风格，斜体
+    stringstyle         =   \ttfamily,  % 字符串风格
+    flexiblecolumns,                % 别问为什么，加上这个
+    numbers             =   left,   % 行号的位置在左边
+    showspaces          =   false,  % 是否显示空格，显示了有点乱，所以不现实了
+    numberstyle         =   \zihao{-5}\ttfamily,    % 行号的样式，小五号，tt等宽字体
+    showstringspaces    =   false,
+    captionpos          =   t,      % 这段代码的名字所呈现的位置，t指的是top上面
+    frame               =   lrtb,   % 显示边框
+    escapeinside        =   ``,
+    breaklines          =   true,
+    extendedchars=false, %解决代码跨页时，章节标题，页眉等汉字不显示的问题
+    %xleftmargin=2em,xrightmargin=2em, aboveskip=1em, %设置边距
+    tabsize=2, %设置tab空格数\
+}
+
+%%%%%%%% 文档页面设置
+\textwidth=14.8cm \textheight=24cm
+\oddsidemargin=15pt
+\evensidemargin=15pt
+\topmargin=-.25in
+\parindent=22pt
+\renewcommand{\baselinestretch}{1.5}
+
+%%%%%%%% 标准尺寸, 不用管它
+\makeatletter
+\renewcommand\normalsize{%
+   \@setfontsize\normalsize\@xpt\@xiipt
+   \abovedisplayskip 1\p@ \@plus2\p@ \@minus5\p@
+   \abovedisplayshortskip \z@ \@plus3\p@
+   \belowdisplayshortskip 6\p@ \@plus3\p@ \@minus3\p@
+   \belowdisplayskip \abovedisplayskip
+   \let\@listi\@listI}
+\makeatother
+
+\allowdisplaybreaks[4]
+\title{时间序列分析作业与第二次实验报告}
+\author{姓名：康江睿 \\ 学号：2018213779\\ 指导老师： \ 张晓飞}
+\date{\today}
+
+\begin{document}
+\maketitle
+\zihao{-4}
+\section{奇数尾号学号对应习题（2.4，2.7，2.12，2.22）}
+\subsection{习题2.4}
+\noindent(a)\quad 假设零均值白噪声序列$\left\{e_t\right\}$满足:
+
+$$ cov(e_t,e_s)=
+\left\{
+\begin{array}{lcl}
+{\sigma_e^2}       &      & {t=s}\\
+0     &      & {t\not=s}
+\end{array}
+\right.
+$$
+
+若要得到$\left\{Y_t\right\}$的自相关函数，先要计算$\left\{Y_t\right\}$的自协方差函数$Cov(Y_t,Y_t)$。为此，首先考虑$t=s$的情形，也即$Var(Y_t)$：
+
+$$Cov(Y_t,Y_t)=Var(Y_t)=Var(e_t)+{\theta^2}Var(e_t)=(1+{\theta^2}){\sigma_e^2}$$
+
+对于$t \not=s$的情形，当$t-s=1时$，应有：
+
+$$Cov(Y_t,Y_{t-1})=Cov(e_t+\theta e_{t-1},e_{t-1}+\theta e_{t-2})=\theta Cov(e_{t-1},e_{t-1})=\theta{\sigma_e^2}$$
+
+当$t-s=k,k\geq 2$时，由$\left\{e_t\right\}$的序列不相关性，很容易得到：
+
+$$Cov(Y_t,Y_{t-k})=Cov(e_t+\theta e_{t-1},e_{t-k}+\theta e_{t-k-1})=0$$
+
+于是可以发现，$\left\{Y_t\right\}$的自协方差函数${\gamma_{t,s}}$仅与$t-s$的值有关，结合过程$\left\{Y_t\right\}$的常数均值与有界方差，易知$\left\{Y_t\right\}$平稳。于是$\left\{Y_t\right\}$的k阶滞后自协方差函数${\gamma_k}$由以下表达式给出：
+
+$$ {\gamma_k}=
+\left\{
+\begin{array}{lcl}
+(1+{\theta^2}){\sigma_e^2}       &      & {k=0}\\
+{\theta}{\sigma_e^2}       &      & {k=1}\\
+0     &      & {k \geq 2}
+\end{array}
+\right.
+$$
+
+因此，易得$\left\{Y_t\right\}$的自相关函数${\rho_k}$为：
+
+$$ {\rho_k}=
+\left\{
+\begin{array}{lcl}
+1       &      & {k=0}\\
+\frac{\theta}{1+{\theta^2}}       &      & {k=1}\\
+0     &      & {k \geq 2}
+\end{array}
+\right.
+$$
+
+当${\theta}=3$时，$\left\{Y_t\right\}$的自相关函数${\rho_k}$为：
+
+$$ {\rho_k}=
+\left\{
+\begin{array}{lcl}
+1       &      & {k=0}\\
+\frac{3}{10}       &      & {k=1}\\
+0     &      & {k \geq 2}
+\end{array}
+\right.
+$$
+
+当${\theta}=\frac{1}{3}$时，$\left\{Y_t\right\}$的自相关函数${\rho_k}$为：
+
+$$ {\rho_k}=
+\left\{
+\begin{array}{lcl}
+1       &      & {k=0}\\
+\frac{3}{10}       &      & {k=1}\\
+0     &      & {k \geq 2}
+\end{array}
+\right.
+$$
+
+\noindent(b)\quad 不能。因为$\left\{Y_t\right\}$的自相关函数取值在两种情形下都相等，只有$\rho_k$的估计值并不足以确定$\theta$的取值。
+\subsection{习题2.7}
+\noindent(a)\quad 由$\left\{Y_t\right\}$平稳，知：
+
+$$E(Y_t)=m,\quad where\ m\ is\ an\ arbitary\ constant,t\in T$$
+
+于是
+$$E(W_t)=E(Y_t-Y_{t-1})=E(Y-t)-E(Y_{t-1})=m-m=0$$
+\begin{equation}
+\begin{aligned}
+          Cov(W_t,W_t) &= Var(W_t)=Var(Y_t-Y_{t-1})\\
+          &= Var(Y_t)+Var(Y_{t-1})-2Cov(Y_t,Y_{t-1})\\
+          &= 2({\gamma_0}-{\gamma_1})<\infty\nonumber
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+          Cov(W_t,W_{t-k}) &= Cov(Y_t-Y_{t-1},Y_{t-k}-Y_{t-k-1})\\
+          &= 2{\gamma_k}-\gamma_{k-1}-\gamma_{k+1},\quad k\geq 1\nonumber
+\end{aligned}
+\end{equation}
+
+因此，$W_t=\nabla Y_t=Y_t-Y_{t-1}$平稳。\\
+(b)\quad 记$\left\{W_t\right\}$的自协方差函数为$\hat{\gamma_k}$，则$U_t=\nabla W_t$。又因为$\left\{W_t\right\}$平稳，故由(a)的结论可以立刻得出：$\left\{U_t\right\}$平稳。
+\subsection{习题2.12}
+首先，假设:
+
+$$ cov(e_t,e_s)=
+\left\{
+\begin{array}{lcl}
+{\sigma_e^2}       &      & {t=s}\\
+0     &      & {t\not=s}
+\end{array}
+\right.
+$$
+
+于是有：
+
+$$E(Y_t)=E(e_t)-E(e_{t-12})=0-0=0$$
+$$Cov(Y_t,Y_t)=Var(Y_t)=Var(e_t)+Var(e_{t-12})=2{\sigma_e^2}$$
+$$Cov(Y_t,Y_{t-12})=Cov(e_t-e_{t-12},e_{t-12}-e_{t-24})=-Cov(e_{t-1},e_{t-1})=-{\sigma_e^2}$$
+$$Cov(Y_t,Y_{t-k})=Cov(e_t-e_{t-12},e_{t-k}-e_{t-k-12})=0,\quad k\not=12$$
+
+可以发现，$\left\{Y_t\right\}$的自协方差函数${\gamma_{t,s}}$仅与$t-s$的值有关，结合过程$\left\{Y_t\right\}$的常数均值与有界方差，知$\left\{Y_t\right\}$平稳。其中，$\left\{Y_t\right\}$的自协方差函数${\gamma_k}$为：
+
+$$ {\gamma_k}=
+\left\{
+\begin{array}{lcl}
+2{\sigma_e^2}       &      & {k=0}\\
+-{\sigma_e^2}       &      & {k=12}\\
+0     &      & {otherwise}
+\end{array}
+\right.
+$$
+
+于是，$\left\{Y_t\right\}$的自相关函数${\rho_k}$为：
+
+$$ {\rho_k}=
+\left\{
+\begin{array}{lcl}
+1       &      & {k=0}\\
+-\frac{1}{2}       &      & {k=12}\\
+0     &      & {otherwise}
+\end{array}
+\right.
+$$
+
+$k>0$时，${\rho_k}$只在滞后$k=12$时非零（${\rho_{12}}=-\frac{1}{2}$）。
+\subsection{习题2.22}
+\noindent(a)$$E(Y_t)=cE(Y_{t-1})+E(e_t)=cE(Y_(t-1))=\cdots={c^{t-1}}E(Y_1)={c^{t-1}}E(e_1)=0$$
+\noindent(b)
+\begin{equation}
+\begin{aligned}
+          Y_t &= cY_{t-1}+e_t={c^2}Y_{t-2}+ce_{t-1}+e_t\\
+          &=\cdots\\
+          &={c^{t-1}}{e_1}+{c^{t-2}}{e_2}+\cdots+ce_{t-1}+e_t\nonumber
+\end{aligned}
+\end{equation}
+
+于是
+
+\begin{equation}
+\begin{aligned}
+          Var(Y_t) &= Var({c^{t-1}}{e_1}+{c^{t-2}}{e_2}+\cdots+ce_{t-1}+e_t)\\
+          &=Var({c^{t-1}}{e_1})+Var({c^{t-2}}{e_2})+\cdots+Var(ce_{t-1})+Var(e_t)\\
+          &={\sigma_e^2}(1+c^2+c^4+\cdots+c^{2t-2})\nonumber
+\end{aligned}
+\end{equation}
+
+而$\left\{Y_t\right\}$的自协方差函数$Cov(Y_t,Y_k)$为
+
+\begin{equation}
+\begin{aligned}
+          Cov(Y_t,Y_k) &= Cov({c^{t-1}}{e_1},{c^{k-1}}{e_1})+\cdots+Cov({c^{t-k}}{e_k},e_k)\\
+          &={\sigma_e^2}(c^{t+k-2}+c^{t+k-4}+\cdots+c^{t-k})\nonumber
+\end{aligned}
+\end{equation}
+
+可以发现，$Cov(Y_t,Y_k)$不只跟时间差$t-k$有关。故$\left\{Y_t\right\}$不平稳。\\
+(c)首先，证明$Y_{t-1}$与$e_t$独立：
+
+$$Cov(e_t,Y_{t-1})=Cov(e_t,{c^{t-2}}{e_1}+{c^{t-3}}{e_2}+\cdots+e_{t-1})=0$$
+
+于是，有
+
+$$Cov(Y_t,Y_{t-1})=Cov(cY_{t-1}+e_t,Y_{t-1})=cVar(Y_{t-1})$$
+
+以及
+
+$$Corr(Y_t,Y_{t-1})=\frac{cVar(Y_{t-1})}{\sqrt{Var(Y_t)Var(Y_{t-1})}}=c\sqrt{\frac{Var(Y_{t-1})}{Var(Y_t)}}$$
+
+进一步地，对于任何$k>0$，应有
+
+$$Cov(Y_t,Y_{t-k})=Cov({c^k}Y_{t-k},Y_{t-k})={c^k}Var(Y_{t-k})$$
+
+以及
+
+$$Corr(Y_t,Y_{t-k})=\frac{{c^k}Y_{t-k}}{\sqrt{Var(Y_t)Var(Y_{t-k})}}={c^k}\sqrt{\frac{Var(Y_{t-k})}{Var(Y_t)}}$$
+\noindent(d)化简$Var(Y_t)$，得
+
+$$Var(Y_t)={\sigma_e^2}(1+c^2+c^4+\cdots+c^{2t-2})=\frac{{\sigma_e^2}(1-{c^{2t}})}{1-c^2}$$
+
+于是对于取值大的t，可以认为$1-c^{2t}\approx 1$，进而
+
+$$Var(Y_t)\approx\frac{\sigma_e^2}{1-c^2}$$
+
+基于以上的近似关系，又可以得出
+
+$$Corr(Y_t,Y_{t-k})={c^k}\sqrt{\frac{Var(Y_{t-k})}{Var(Y_t)}}\approx c^k,\quad k\geq 0$$
+\noindent(e)若初始条件改变后有$Y_1=\frac{e_1}{\sqrt{1-c^2}}$，则由(b)的推导过程可以直接得到
+
+$$Y_t=\frac{{c^{t-1}}{e_1}}{\sqrt{1-c^2}}+{c^{t-2}}{e_2}+\cdots+ce_{t-1}+e_t$$
+
+于是可以得到$\left\{Y_t\right\}$的方差：
+
+\begin{equation}
+\begin{aligned}
+          Var(Y_t)&={\sigma_e^2}(1+c^2+c^4+\cdots+c^{2t-4}+\frac{c^{2t-2}}{1-c^2})\\
+          &={\sigma_e^2}(\frac{c^{2t-2}}{1-c^2}+\frac{1-c^{2t-2}}{1-c^2})={\sigma_e^2}\frac{1}{1-c^2}\nonumber
+\end{aligned}
+\end{equation}
+
+于是，对于任何$k>0$的情形，有
+
+$$Cov(Y_t,Y_{t-k})={c^k}Var(Y_{t-k})={c^k}{\sigma_e^2}\frac{1}{1-c^2}$$
+
+可以看出，$\left\{Y_t\right\}$的自协方差函数只与时间差$k$有关。又因为
+
+$$E(Y_t)=E(\frac{{c^{t-1}}{e_1}}{\sqrt{1-c^2}}+{c^{t-2}}{e_2}+\cdots+ce_{t-1}+e_t)=0$$
+$$Var(Y_t)={\sigma_e^2}\frac{1}{1-c^2}<\infty$$
+
+所以$\left\{Y_t\right\}$平稳。
+\section{对随机游走序列与滑动平均序列的模拟仿真}
+\subsection{模拟与可视化}
+首先，假定白噪声序列$\left\{e_t\right\}$服从标准正态分布；接下来进行模拟仿真。
+使用R语言的实现如下：\\
+\begin{lstlisting}[language=R]
+windows(40,20); #`设置图窗参数`
+split.screen(c(1,2)); #`将Graph Device分屏为1×2的大小`
+screen(1); #`设置当前绘图屏幕`
+n <- 2;x <- numeric(100);x[1] <- rnorm(1,0,1); #`初始化随机游走序列`
+while (n<=100){
+  x[n] <- x[n-1]+rnorm(1,0,1);
+  n <- n+1;
+} #`生成长度为100的随机游走序列`
+y1=ts(x);plot.ts(y1,xlab = "Time",ylab = "Value",main = "随机游走模拟"); #`绘制时间序列图像`
+points(y1,pch = 21); #`设置点型`
+screen(2); #`设置当前绘图屏幕`
+x <- rnorm(101,0,1); #`生成101个独立同分布于标准正态分布的随机数`
+y <- numeric(100); #`初始化滑动平均序列`
+for (i in 1:100){
+  y[i] <- (x[i]+x[i+1])/2;
+} #`通过随机数向量x生成长度为100的滑动平均序列`
+y2=ts(y);plot.ts(y2,xlab = "Time",ylab = "Value",main = "滑动平均模拟"); #`绘制时间序列图像`
+points(y2,pch = 21); #`设置点型`
+close.screen(all = TRUE); #`退出split.screen模式`
+\end{lstlisting}
+
+绘制的图像如下：\\
+\begin{figure}[!htbp]
+  \centering
+  % Requires \usepackage{graphicx}
+  \includegraphics[height=6cm,width=12cm]{Ch2_simulation.png}\\
+  \caption{对模拟随机游走序列与模拟滑动平均序列的可视化}
+\end{figure}
+\newpage
+\subsection{连续时间点之间的相关性分析}
+使用R语言的实现如下：\\
+\begin{lstlisting}[language=R]
+library("TSA") #`加载程辑包`
+windows(40,20); #`设置图窗参数`
+split.screen(c(1,2)); #`将Graph Device分屏为1×2的大小`
+screen(1); #`设置当前绘图屏幕`
+plot(y1,x=zlag(y1,1),xlab = "Previous Value",ylab = "Value",main = "随机游走序列的一阶滞后自相关图");
+#`绘制随机游走序列的一阶滞后自相关图`
+screen(2); #`设置当前绘图屏幕`
+plot(y2,x=zlag(y2,1),xlab = "Previous Value",ylab = "Value",main = "滑动平均序列的一阶滞后自相关图")
+#`绘制滑动平均序列的一阶滞后自相关图`
+\end{lstlisting}
+
+绘制的图像如下：\\
+\begin{figure}[!htbp]
+  \centering
+  % Requires \usepackage{graphicx}
+  \includegraphics[height=6cm,width=12cm]{Ch2_selfcorr.png}\\
+  \caption{对随机游走序列与滑动平均序列绘制一阶滞后自相关图}
+\end{figure}
+
+我们从图像中分析，可以发现：在随机游走序列中，相邻时间的序列取值有很强烈的正相关性，具体表现为在其一阶滞后自相关图中，所有点几乎分布在一条斜率为正的直线上；在滑动平均序列中，相邻时间的序列取值有明显但不强烈的相关性，具体表现为在其一阶滞后自相关图中，散点的分布稍微显现了一个向上的趋势。
+\subsection{小结}
+首先，由已知的结论，有：对于随机游走序列，其自相关函数为
+
+$$\gamma_{t,s}=\sqrt{\frac{t}{s}}$$
+
+从表达式中可以发现，相邻时点上序列取值是正相关的，且随着时间的推移，相邻时点上序列取值的正相关程度越来越强（相关系数趋于1）；这些特征在随机游走序列的时序图与一阶滞后自相关图中得到了充分的体现。
+
+而对于滑动平均序列，其自相关函数为
+
+$$ {\rho_k}=
+\left\{
+\begin{array}{lcl}
+1       &      & {k=0}\\
+0.5       &      & {k=1}\\
+0     &      & {k\ge 1}
+\end{array}
+\right.
+$$
+
+从表达式中可以发现，滑动平均序列（仅指代要求的形式）只存在一阶滞后自相关（正相关），且相关系数并不很高，故其一阶滞后自相关性明显但不强烈；这些特征在滑动平均序列的时序图与一阶滞后自相关图中得到了充分的体现。
+\section{偶数尾号学号对应习题（2.6，2.9，2.13，2.27）}
+本部分非单数尾号学号要求习题，但自己也还是做了，希望能巩固自己对知识点的把握。
+\subsection{习题2.6}
+\noindent(a)\quad 由于$\left\{X_t\right\}$平稳，故可以假设：
+
+$$E(X_t)=m_1,\quad Var(X_t)<\infty$$
+$$Cov(X_t,X_{t-k})=\gamma_k$$
+
+基于此假设，讨论$Cov(Y_t,Y_{t-k})$：由协方差性质知，
+
+$$Cov(Y_t,Y_{t-k})=Cov(X_t+m,X_{t-k}+n)=Cov(X_t,X_{t-k})=\gamma_k$$
+
+其中$m=0\ or\ 3$,$n=0\ or\ 3$。因此不管$t$和$k$如何取值，都有$Cov(Y_t,Y_{t-k})=\gamma_k$。\\
+(b)\quad 显然$\left\{Y_t\right\}$本身是不平稳的，因为
+$$ {E(Y_t)}=
+\left\{
+\begin{array}{lcl}
+m_1+3       &      & {if\ 2|t}\\
+m_1       &      & {othewise}
+\end{array}
+\right.
+$$
+\subsection{习题2.9}
+\noindent(a)\quad 由于$E(Y_t)=E(X_t)+\beta_0+{\beta_1}t=\beta_0+{\beta_1}t$不是定值，因此$\left\{Y_t\right\}$非平稳。
+
+对于$W_t=\nabla Y_t=Y_t-Y_{t-1}$，知：
+
+$$\nabla Y_t=X_t-X_{t-1}+\beta_1$$
+
+已知$\left\{X_t\right\}$平稳，由习题2.7中的结论，$\nabla X_t=X_t-X_{t-1}$是平稳的，从而$W_t=\nabla X_t+\beta_1$也平稳。\\
+(b)\quad 由差分的性质，知${\nabla^m}Y_t={\nabla^m}X_t+{\nabla^m}\mu_t$。由习题2.7的结论，立刻得到${\nabla^m}X_t$平稳；对于${\nabla^m}\mu_t$，由$d(\mu_t)=d$，有：
+
+$$ {d({\nabla^m}\mu_t)}=
+\left\{
+\begin{array}{lcl}
+d-m       &      & {0\leq m<d}\\
+0       &      & {m\geq d}
+\end{array}
+\right.
+$$
+
+因此在$0\leq m<d$时，有$d({\nabla^m}\mu_t)>1$，此时$E({\nabla^m}Y_t)={\nabla^m}\mu_t+E({\nabla^m}X_t)={\nabla^m}\mu_t$非常数，故${\nabla^m}Y_t$不平稳；在$m\geq d$时，$ {\nabla^m}\mu_t$为常数，由${\nabla^m}X_t$平稳知${\nabla^m}Y_t$平稳。
+\subsection{习题2.13}
+\noindent (a)\quad 假定白噪声序列$\left\{e_t\right\}$满足$e_t\sim{N(0,\sigma_e^2)}$，于是
+
+\begin{equation}
+\begin{aligned}
+          Cov(Y_t,Y_{t-k})&=Cov(e_t,e_{t-k})-\theta Cov(e_t,e_{t-k-1}^2)\\
+          &\quad -\theta Cov(e_{t-k},e_{t-1}^2)+{\theta^2}Cov(e_{t-1}^2,e_{t-k-1}^2)\nonumber
+\end{aligned}
+\end{equation}
+
+注意到，由于$e_t\sim{N(0,\sigma_e^2)}$，故$(\frac{e_t}{\sigma_e})^2\sim{\chi(1)}$。
+
+于是，当$k=0$时，有
+
+$$Cov(Y_t,Y_{t-k})={\sigma_e^2}+{\theta^2}{\sigma_e^4}Var((\frac{e_t}{\sigma_e})^2)={\sigma_e^2}+2{\theta^2}{\sigma_e^4}$$
+
+当$k=1$时，有
+
+$$Cov(Y_t,Y_{t-k})=-\theta Cov(e_{t-1},e_{t-1}^2)=-\theta E(e_{t-1}^3)=0$$
+
+其余情况下，恒有$Cov(Y_t,Y_{t-k})=0$。汇总以上结果，得到$\left\{Y_t\right\}$的自协方差函数：
+
+$$ {\gamma_k}=
+\left\{
+\begin{array}{lcl}
+{\sigma_e^2}+2{\theta^2}{\sigma_e^4}       &      & {k=0}\\
+0       &      & {k\not=0}
+\end{array}
+\right.
+$$
+
+以及$\left\{Y_t\right\}$的自相关函数：
+
+$$ {\rho_k}=
+\left\{
+\begin{array}{lcl}
+1       &      & {k=0}\\
+0       &      & {k\not=0}
+\end{array}
+\right.
+$$
+
+\noindent(b)\quad 计算$\left\{Y_t\right\}$的均值与方差：
+
+$$E(Y_t)=E(e_t)+\theta E(e_{t-1}^2)=0$$
+$$Var(Y_t)=\gamma_0={\sigma_e^2}+2{\theta^2}{\sigma_e^4}$$
+
+又因为$\left\{Y_t\right\}$的自协方差函数只与时间差有关，所以$\left\{Y_t\right\}$平稳。进一步还可以发现，$\left\{Y_t\right\}$其实是方差为$\gamma_0={\sigma_e^2}+2{\theta^2}{\sigma_e^4}$的白噪声序列。
+\subsection{习题2.27}
+\noindent(a)\quad 假设白噪声序列$\left\{e_t\right\}$满足：
+
+$$ cov(e_t,e_s)=
+\left\{
+\begin{array}{lcl}
+{\sigma_e^2}       &      & {t=s}\\
+0     &      & {t\not=s}
+\end{array}
+\right.
+$$
+
+则
+
+$$E(Y_t)=E(e_t)+\phi E(e_{t-1})+\cdots+{\phi^r}E(e_{t-r})=0$$
+
+对于$\left\{Y_t\right\}$的方差，当$\phi\not=1$时，
+
+\begin{equation}
+\begin{aligned}
+          Var(Y_t)&=Var(e_t)+{\phi^2}Var(e_{t-1})+\cdots+{\phi^{2r}}Var(e_{t-r})\\
+          &={\sigma_e^2}(1+{\phi^2}+\cdots+{\phi^{2r}})={\sigma_e^2}\frac{1-{\phi^{2r+2}}}{1-{\phi^2}}\nonumber
+\end{aligned}
+\end{equation}
+
+当$\phi=1$时，
+$$Var(Y_t)=(r+1){\sigma_e^2}$$
+
+对于$\left\{Y_t\right\}$的自协方差函数，当$k\leq r$且$\phi\not=1$时，有
+
+\begin{equation}
+\begin{aligned}
+          Cov(Y_t,Y_{t-k})&={\phi^k}Cov(e_{t-k},e_{t-k})+{\phi^{k+2}}Cov(e_{t-k-1},e_{t-k-1})+\cdots\\
+          &\quad +{\phi^{2r-k}}Cov(e_{t-r},e_{t-r})\\
+          &={\sigma_e^2}({\phi^k}+{\phi^{k+2}}+\cdots+{\phi^{2r-k}})\\
+          &={\sigma_e^2}{\phi^k}(1+{\phi^2}+\cdots+{\phi^{2r-2k}})\\
+          &={\sigma_e^2}{\phi^k}\frac{1-{\phi^{2r-2k+2}}}{1-{\phi^2}}\nonumber
+\end{aligned}
+\end{equation}
+
+当$k\leq r$且$\phi=1$时，有
+
+$$Var(Y_t)=(r-k+1){\sigma_e^2}$$
+
+而在$k>r$时，显然$Cov(Y_t,Y_{t-k})=0$。于是$\left\{Y_t\right\}$的自协方差函数$\gamma_k$在给定了$\phi$和$r$的取值后仅与$k$有关。
+
+综上：
+
+$$E(Y_t)=0$$
+$$ Var(Y_t)=
+\left\{
+\begin{array}{lcl}
+{\sigma_e^2}\frac{1-{\phi^{2r+2}}}{1-{\phi^2}}       &      & {\phi\not=1}\\
+(r+1){\sigma_e^2}     &      & {\phi=1}
+\end{array}
+\right.
+$$
+$$ {\gamma_k}=
+\left\{
+\begin{array}{lcl}
+{\sigma_e^2}{\phi^k}\frac{1-{\phi^{2r-2k+2}}}{1-{\phi^2}}       &      & {k\leq r\&\phi\not=1}\\
+(r-k+1){\sigma_e^2}       &      & {k\leq r\&\phi=1}\\
+0     &      & {k>r}
+\end{array}
+\right.
+$$
+
+而对于任意给定的$\phi$的取值，$\left\{Y_t\right\}$平稳。\\
+(b)$\left\{Y_t\right\}$的自相关函数$\rho_k$为
+$$ {\rho_k}=
+\left\{
+\begin{array}{lcl}
+{\phi^k}\frac{1-{\phi^{2r-2k+2}}}{1-{\phi^{2r+2}}}       &      & {k\leq r\&\phi\not=1}\\
+\frac{r-k+1}{r+1}       &      & {k\leq r\&\phi=1}\\
+0     &      & {k>r}
+\end{array}
+\right.
+$$
+\end{document}

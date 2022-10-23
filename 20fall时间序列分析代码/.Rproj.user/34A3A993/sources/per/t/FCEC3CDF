@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1608103998646.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "935531790",
+    "id" : "FCEC3CDF",
+    "lastKnownWriteTime" : 1608105019,
+    "last_content_update" : 1608105019948,
+    "path" : "D:/R Files/TSAcourse/simARIMA.R",
+    "project_path" : "simARIMA.R",
+    "properties" : {
+        "cursorPosition" : "62,15",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

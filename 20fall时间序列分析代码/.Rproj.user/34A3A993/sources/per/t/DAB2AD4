@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1607311249053.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3099198828",
+    "id" : "DAB2AD4",
+    "lastKnownWriteTime" : 1606732677,
+    "last_content_update" : 1606732677,
+    "path" : "D:/R Files/TSAcourse/acfun.R",
+    "project_path" : "acfun.R",
+    "properties" : {
+        "cursorPosition" : "92,18",
+        "scrollLine" : "82"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

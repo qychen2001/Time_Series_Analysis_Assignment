@@ -7,14 +7,14 @@ linear_model = function(x, y) {
 }
 
 season_model_with_intercept = function(x, y) {
-  x = model.matrix( ~ x, x)
+  x = model.matrix(~ x, x)
   mu = solve(t(x) %*% x) %*% t(x) %*% y # 求参数
   y_hat = x %*% mu # 预测
   return(list(mu, y_hat))
 }
 
 season_model_without_intercept = function(x, y) {
-  x = model.matrix( ~ x - 1, x) # 转化为one-hot编码
+  x = model.matrix(~ x - 1, x) # 转化为one-hot编码
   mu = solve(t(x) %*% x) %*% t(x) %*% y # 求参数
   y_hat = x %*% mu # 预测
   return(list(mu, y_hat))
@@ -46,6 +46,8 @@ y_hat = result[[2]]
 y_num = as.numeric(y) # 转换为数值
 e = y_num - y_hat
 
+e = scale(e)
+
 win.graph(12, 6, pointsize = 10)
 plot(ts(e, start = start(winnebago), frequency = 12),
      type = 'o',
@@ -66,19 +68,34 @@ y_hat = result[[2]]
 y_num = as.numeric(y) # 转换为数值
 e = y_num - y_hat
 
+e = scale(e)
+
 win.graph(12, 6, pointsize = 10)
 plot(ts(e, start = start(winnebago), frequency = 12),
      type = 'o',
      pch = 21)
 # e
 x = season(winnebago)
-x = model.matrix( ~ x, x) # 将类别转化为设计矩阵
+x = model.matrix(~ x, x) # 将类别转化为设计矩阵
 x = cbind(x, time(log(winnebago))) # 添加时间
 y = log(winnebago) # 添加对数
 mu = solve(t(x) %*% x) %*% t(x) %*% y # 线性模型拟合
 y_hat = x %*% mu # 预测
 y_num = as.numeric(y) # 转换为数值
+
 e = y_num - y_hat
+
+
+# 假设检验
+
+sigma_hat = as.vector(sqrt(t(e) %*% e / (length(e) - length(mu))))
+c_i = as.vector(sqrt(diag(solve(t(
+  x
+) %*% x))))
+t_value = mu / (sigma_hat * c_i)
+p_value = 2 * pt(-abs(t_value), df = length(e) - length(mu))
+
+e = scale(e)
 # f
 win.graph(12, 6, pointsize = 10)
 plot(ts(e, start = start(winnebago), frequency = 12),
