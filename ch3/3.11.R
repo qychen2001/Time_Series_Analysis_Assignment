@@ -17,7 +17,10 @@ quadratic_model = function(x, y) {
 x = time(wages)
 y = wages
 
+lm2=lm(y~x+I(x^2))
+
 result = quadratic_model(x, y)
+beta2 = result[[1]]
 y_hat = result[[2]]
 y_num = as.numeric(y) # 转换为数值
 e = y_num - y_hat
@@ -27,11 +30,11 @@ var(e)
 
 # b
 
-e=scale(e) # 标准化
+e = scale(e) # 标准化
 runs(e)
 
 # c
-acf_result=acf(e)
+acf_result = acf(e)
 acf_result
 
 # d
@@ -48,4 +51,3 @@ win.graph(width = 8,
           height = 8,
           pointsize = 10)
 hist(e)
-

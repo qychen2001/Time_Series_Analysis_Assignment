@@ -40,7 +40,10 @@ plot(wages, type = 'o', pch = 21)
 x = time(wages)
 y = wages
 
+lm1 = lm(y ~ x) # 对比lm的结果
+
 result = linear_model(x, y)
+beta1 = result[[1]] # 自己计算的beta
 y_hat = result[[2]]
 y_num = as.numeric(y) # 转换为数值
 e = y_num - y_hat
@@ -48,8 +51,6 @@ mean(e)
 var(e)
 
 e = scale(e)
-
-
 # c
 win.graph(12, 6, pointsize = 10)
 plot(ts(e, start = start(wages), frequency = 12),
@@ -59,7 +60,10 @@ plot(ts(e, start = start(wages), frequency = 12),
 x = time(wages)
 y = wages
 
+lm2 = lm(y ~ x + I(x ^ 2))
+
 result = quadratic_model(x, y)
+beta = result[[1]] # 对比lm的结果
 y_hat = result[[2]]
 y_num = as.numeric(y) # 转换为数值
 e = y_num - y_hat

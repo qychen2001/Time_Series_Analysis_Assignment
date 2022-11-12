@@ -4,7 +4,10 @@ data("retail")
 x = season(retail)
 x = model.matrix(~ x, x) # 将类别转化为设计矩阵
 x = cbind(x, time(retail)) # 添加时间
-y = retail # 添加对数
+y = retail
+
+lm1=lm(y~x)
+
 mu = solve(t(x) %*% x) %*% t(x) %*% y # 线性模型拟合
 y_hat = x %*% mu # 预测
 y_num = as.numeric(y) # 转换为数值
