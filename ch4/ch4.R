@@ -1,33 +1,42 @@
-AutoCor_MA = function(theta) {
-  q = length(theta)
-  B = 1 + sum(theta ^ 2)
-  A = rep(NA, q)
-  for (k in seq(q - 1)) {
-    A[k] = -theta[k] + sum(theta[seq(1, q - k)] * theta[seq(k + 1, q)])
-  }
-  A[q] = -theta[q]
-  
-  rho = A / B
-  rho
-}
+# 4.10
+source("./ARMA11.R")
+(rho1 = AutoCor_ARMA11(phi = 0.7, theta = 0.4))
+plot(c(1:30),rho1,ylab = "自相关函数值",xlab = "滞后数",
+  col = "red",cex = 1,pch = 16)
 
+(rho2 = AutoCor_ARMA11(phi = 0.7, theta = -0.4))
+plot(c(1:30),rho2,ylab = "自相关函数值",xlab = "滞后数",
+  col = "red",cex = 1,pch = 16
+)
 
-AutoCor_AR2 = function(phi1, phi2, max.lag = 20) {
-  rho = req(NA, max.lag)
-  rho[1] = phi1 / (1 - phi2)
-  rho[2] = (phi2 * (1 - phi2) + phi1 ^ 2) / (1 - phi2)
-  for (k in 3:max.lag) {
-    rho[k] = phi1 * rho[k - 1] + phi2 * rho[k - 2]
-  }
-}
+# 4.9
+source("./AR2.R")
+# a
+rho=AutoCor_AR2(0.6,0.3)
+(root=Charac_func(0.6,0.3))
+plot_rho(rho)
 
+# b
+rho=AutoCor_AR2(-0.4,0.5)
+(root=Charac_func(-0.4,0.5))
+plot_rho(rho)
 
-theta = c(1, -0.6, 0.3)
+# c
+rho=AutoCor_AR2(1.2,-0.7)
+(root=Charac_func(1.2,-0.7))
+plot_rho(rho)
 
-Y = rep(NA, n)
-e = rnorm(n, 0, 1)
-q = length(theta)
-e1 = c(rep(0, q), e)
-for (i in seq(n)) {
-  Y[i] = e[i + q] - e[i + q - 1]
-}
+# d
+rho=AutoCor_AR2(-1,-0.6)
+(root=Charac_func(-1,-0.6))
+plot_rho(rho)
+
+# e
+rho=AutoCor_AR2(0.5,-0.9)
+(root=Charac_func(0.5,-0.9))
+plot_rho(rho)
+
+# e
+rho=AutoCor_AR2(-0.5,-0.6)
+(root=Charac_func(-0.5,-0.6))
+plot_rho(rho)
