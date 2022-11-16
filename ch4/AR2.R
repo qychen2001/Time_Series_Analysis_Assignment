@@ -1,3 +1,4 @@
+# 自相关函数计算函数
 AutoCor_AR2 = function(phi1, phi2, max.lag = 30) {
   rho = rep(NA, max.lag)
   rho[1] = phi1 / (1 - phi2)
@@ -8,6 +9,7 @@ AutoCor_AR2 = function(phi1, phi2, max.lag = 30) {
   rho
 }
 
+# 自相关函数绘图函数
 plot_rho = function(rho) {
   plot(
     c(1:30),
@@ -20,7 +22,7 @@ plot_rho = function(rho) {
   )
 }
 
-
+# 特征方程
 Charac_func = function(phi1, phi2) {
   delta = sqrt(complex(real = phi1 ^ 2 + 4 * phi2))
   if (Im(delta) == 0) {
