@@ -36,7 +36,7 @@ rho=AutoCor_AR2(0.5,-0.9)
 (root=Charac_func(0.5,-0.9))
 plot_rho(rho)
 
-# e
+# f
 rho=AutoCor_AR2(-0.5,-0.6)
 (root=Charac_func(-0.5,-0.6))
 plot_rho(rho)
