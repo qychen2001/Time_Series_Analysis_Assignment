@@ -12,11 +12,11 @@ ARMA_func = function(AR_params, MA_params, seq_length) {
     AR = 0
     MA = 0
     if (AR_params_length != 0) {
-      AR = (Y[(i - AR_params_length):(i - 1)] %*% AR_params)[1, 1]
+      AR = (Y[(i - 1):(i - AR_params_length)] %*% AR_params)[1, 1]
     }
     if (MA_params_length != 0) {
       # 是一个矩阵，取第一个元素
-      MA = (e[(i - MA_params_length):(i - 1)] %*% MA_params)[1, 1]
+      MA = (e[(i - 1):(i - MA_params_length)] %*% MA_params)[1, 1]
     }
     Y[i] = AR - MA + e[i]
   }
@@ -68,4 +68,14 @@ draw_ARIMA = function(AR_params,
            pch = 16)
     lines(results[[i]])
   }
+}
+
+
+AR_func=function(AR_params,seq_length){
+  Y = c(rep(0, length(AR_params)), rep(NA, seq_length))
+  e = rnorm(n = (seq_length + length(AR_params)))
+  for (t in (length(AR_params)+1):(seq_length + length(AR_params))){
+    Y[t]=(Y[(t - 1):(t - length(AR_params))] %*% AR_params)[1,1]+e[t]
+  }
+  return(Y[(length(AR_params)+ 1):length(Y)]) # 忽略前几项
 }

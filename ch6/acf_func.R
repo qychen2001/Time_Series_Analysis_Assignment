@@ -46,8 +46,6 @@ pacf_func = function(series, max_lag = 20) {
   return(phi_kk)
 }
 
-
-
 MA_thm_acf = function(MA_params) {
   q = length(MA_params)
   rho0 = 1 + (MA_params %*% MA_params)
@@ -62,7 +60,37 @@ MA_thm_acf = function(MA_params) {
   return(rho)
 }
 
-draw_acf = function(acf_series, type = "acf") {
-  plot(acf_series, type = 'h')
+AR1_thm_acf = function(AR_params,max_lag=20) {
+  result=rep(0,max_lag)
+  for (i in 1:max_lag){
+    result[i]=AR_params[1]^i
+  }
+  return(result)
+}
+
+AR2_thm_acf = function(AR_params,max_lag=20) {
+  rho = rep(NA, max_lag)
+  phi1 = AR_params[1]
+  phi2 = AR_params[2]
+  rho[1] = phi1 / (1 - phi2)
+  rho[2] = (phi2 * (1 - phi2) + phi1 ^ 2) / (1 - phi2)
+  for (k in 3:max_lag) {
+    rho[k] = phi1 * rho[k - 1] + phi2 * rho[k - 2]
+  }
+  return(rho)
+}
+
+
+draw_acf = function(acf_series, type = "理论自相关",n=36) {
+  plot(acf_series, type = 'h', xlab = '延迟' ,ylab = type)
   abline(h = 0)
+  abline(h = 0)
+  abline(h = c(2*sqrt(1/n),-2*sqrt(1/n)),lty=2)
+}
+
+
+draw_pacf = function(acf_series, type = "样本偏自相关", n=36) {
+  plot(acf_series, type = 'h', xlab = '延迟' ,ylab = type)
+  abline(h = 0)
+  abline(h = c(2*sqrt(1/n),-2*sqrt(1/n)),lty=2)
 }
